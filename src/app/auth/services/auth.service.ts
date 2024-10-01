@@ -16,7 +16,6 @@ export class AuthService {
   private _currentUser = signal<User|null>(null);
   private _authStatus = signal<AuthStatus>( AuthStatus.checking );
 
-  //! Al mundo exterior
   public currentUser = computed( () => this._currentUser() );
   public authStatus = computed( () => this._authStatus() );
 
@@ -35,8 +34,6 @@ export class AuthService {
   }
 
 
-
-
   login( email: string, password: string ): Observable<boolean> {
 
     const url  = `${ this.baseUrl }/auth/login`;
@@ -48,6 +45,7 @@ export class AuthService {
         catchError( err => throwError( () => err.error.message ))
       );
   }
+
 
   checkAuthStatus():Observable<boolean> {
 
@@ -62,18 +60,16 @@ export class AuthService {
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${ token }`);
 
-
-      return this.http.get<CheckTokenResponse>(url, { headers })
-        .pipe(
-          map( ({ user, token }) => this.setAuthentication( user, token )),
-          catchError(() => {
-            this._authStatus.set( AuthStatus.notAuthenticated );
-            return of(false);
-          })
-        );
-
-
+    return this.http.get<CheckTokenResponse>(url, { headers })
+      .pipe(
+        map( ({ user, token }) => this.setAuthentication( user, token )),
+        catchError(() => {
+          this._authStatus.set( AuthStatus.notAuthenticated );
+          return of(false);
+        })
+      );
   }
+
 
   logout() {
     localStorage.removeItem('token');
@@ -81,6 +77,5 @@ export class AuthService {
     this._authStatus.set( AuthStatus.notAuthenticated );
 
   }
-
 
 }
